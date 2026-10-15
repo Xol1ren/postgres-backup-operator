@@ -1,0 +1,155 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.5
+  name: postgresrestores.backup.xol1ren.io
+spec:
+  group: backup.xol1ren.io
+  names:
+    kind: PostgresRestore
+    listKind: PostgresRestoreList
+    plural: postgresrestores
+    shortNames:
+    - pgr
+    singular: postgresrestore
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.completionTime
+      name: Completed
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: PostgresRestore restores a backup from S3 into a target database.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: |-
+              PostgresRestoreSpec defines the desired state of PostgresRestore.
+              Exactly one of BackupName or S3Path must be set.
+            properties:
+              backupName:
+                description: BackupName references a PostgresBackup in the same namespace;
+                  its latest successful backup is restored.
+                type: string
+              pitrTimestamp:
+                description: PITRTimestamp, when set together with BackupName, selects
+                  the newest backup taken at or before this time.
+                format: date-time
+                type: string
+              s3Path:
+                description: S3Path is an explicit object key to restore. Requires
+                  Storage.
+                type: string
+              storage:
+                description: Storage is required when S3Path is used without BackupName.
+                properties:
+                  bucket:
+                    description: Bucket is the destination bucket.
+                    minLength: 1
+                    type: string
+                  credentialSecretRef:
+                    description: CredentialSecretRef references a Secret with keys
+                      accessKeyId and secretAccessKey.
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
+                  endpoint:
+                    description: Endpoint is the S3-compatible endpoint URL (e.g.
+                      http://minio:9000). Empty means AWS S3.
+                    type: string
+                  forcePathStyle:
+                    description: ForcePathStyle enables path-style addressing (required
+                      by most MinIO setups).
+                    type: boolean
+                  prefix:
+                    description: Prefix is an optional key prefix inside the bucket.
+                    type: string
+                  region:
+                    default: us-east-1
+                    description: Region is the bucket region.
+                    type: string
+                required:
+                - bucket
+                - credentialSecretRef
+                type: object
+              targetDatabaseUriSecretRef:
+                description: TargetDatabaseURISecretRef references a Secret (host,
+                  user, password, dbname, optional port) for the restore target.
+                properties:
+                  name:
+                    default: ""
+                    description: |-
+                      Name of the referent.
+                      This field is effectively required, but due to backwards compatibility is
+                      allowed to be empty. Instances of this type with an empty value here are
+                      almost certainly wrong.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+            required:
+            - targetDatabaseUriSecretRef
+            type: object
+          status:
+            description: PostgresRestoreStatus defines the observed state of PostgresRestore.
+            properties:
+              activeJob:
+                description: ActiveJob is the restore Job name.
+                type: string
+              completionTime:
+                description: CompletionTime is when the restore finished (successfully
+                  or not).
+                format: date-time
+                type: string
+              error:
+                description: Error holds the failure reason when Phase is Failed.
+                type: string
+              phase:
+                description: Phase is the current lifecycle phase.
+                enum:
+                - Pending
+                - Running
+                - Succeeded
+                - Failed
+                type: string
+              resolvedS3Path:
+                description: ResolvedS3Path is the object key chosen for the restore.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
