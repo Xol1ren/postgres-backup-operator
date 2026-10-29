@@ -22,11 +22,9 @@ jobs:
           make generate manifests
           git diff --exit-code
       - name: Unit and integration tests
-        run: go test -race -v ./...
-      - name: staticcheck
-        run: bin/staticcheck ./...
-      - name: golangci-lint
-        run: bin/golangci-lint run ./...
+        run: make test
+      - name: Lint and static analysis
+        run: make lint
 
   docker:
     runs-on: ubuntu-latest
