@@ -182,6 +182,12 @@ func TestBackupPendingToRunningCreatesJob(t *testing.T) {
 	if c.Image != "runner:test" || c.Args[0] != "backup" {
 		t.Errorf("unexpected container: %+v", c)
 	}
+	if sc := c.SecurityContext; sc == nil || !*sc.ReadOnlyRootFilesystem || !*sc.RunAsNonRoot || *sc.RunAsUser != 10001 || *sc.AllowPrivilegeEscalation {
+		t.Errorf("container security context not hardened: %+v", sc)
+	}
+	if len(c.VolumeMounts) == 0 || c.VolumeMounts[0].MountPath != "/tmp" {
+		t.Errorf("expected scratch volume mounted at /tmp, got %+v", c.VolumeMounts)
+	}
 	wantKey := "default/nightly/20261015T023000Z.sql.gz"
 	if b.Status.S3Path != wantKey {
 		t.Errorf("S3Path = %q, want %q", b.Status.S3Path, wantKey)

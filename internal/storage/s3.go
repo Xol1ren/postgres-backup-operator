@@ -66,6 +66,7 @@ func NewS3(ctx context.Context, cfg Config) (ObjectStore, error) {
 	up := manager.NewUploader(client, func(u *manager.Uploader) {
 		u.PartSize = partSize
 		u.Concurrency = concurrency
+		u.BufferProvider = manager.NewBufferedReadSeekerWriteToPool(int(partSize))
 	})
 	return &S3Store{bucket: cfg.Bucket, client: client, uploader: up}, nil
 }

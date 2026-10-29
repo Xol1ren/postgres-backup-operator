@@ -107,7 +107,9 @@ func buildJob(s jobSpec) *batchv1.Job {
 					RestartPolicy: corev1.RestartPolicyNever,
 					SecurityContext: &corev1.PodSecurityContext{
 						RunAsNonRoot:   ptr.To(true),
-						RunAsUser:      ptr.To[int64](70),
+						RunAsUser:      ptr.To[int64](10001),
+						RunAsGroup:     ptr.To[int64](10001),
+						FSGroup:        ptr.To[int64](10001),
 						SeccompProfile: &corev1.SeccompProfile{Type: corev1.SeccompProfileTypeRuntimeDefault},
 					},
 					Containers: []corev1.Container{{
@@ -118,7 +120,15 @@ func buildJob(s jobSpec) *batchv1.Job {
 						SecurityContext: &corev1.SecurityContext{
 							AllowPrivilegeEscalation: ptr.To(false),
 							ReadOnlyRootFilesystem:   ptr.To(true),
+							RunAsNonRoot:             ptr.To(true),
+							RunAsUser:                ptr.To[int64](10001),
 							Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      "scratch",
+								MountPath: "/tmp",
+							},
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -128,6 +138,17 @@ func buildJob(s jobSpec) *batchv1.Job {
 							Limits: corev1.ResourceList{corev1.ResourceMemory: resource.MustParse("512Mi")},
 						},
 					}},
+					Volumes: []corev1.Volume{
+						{
+							Name: "scratch",
+							VolumeSource: corev1.VolumeSource{
+								EmptyDir: &corev1.EmptyDirVolumeSource{
+									Medium:    corev1.StorageMediumMemory,
+									SizeLimit: ptr.To(resource.MustParse("64Mi")),
+								},
+							},
+						},
+					},
 				},
 			},
 		},
