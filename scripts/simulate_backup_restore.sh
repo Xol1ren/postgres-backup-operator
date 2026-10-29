@@ -1,0 +1,1 @@
+../local-dev/scripts/e2e_test.sh
