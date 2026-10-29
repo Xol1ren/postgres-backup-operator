@@ -51,6 +51,9 @@ func pgArgs() []string {
 	if port == "" {
 		port = "5432"
 	}
+	if os.Getenv("PGSSLMODE") == "" {
+		_ = os.Setenv("PGSSLMODE", "prefer")
+	}
 	return []string{"-h", os.Getenv("PG_HOST"), "-p", port, "-U", os.Getenv("PG_USER"), "-d", os.Getenv("PG_DBNAME")}
 }
 

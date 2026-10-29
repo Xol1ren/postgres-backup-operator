@@ -17,9 +17,15 @@ type PostgresRestoreSpec struct {
 	// Storage is required when S3Path is used without BackupName.
 	// +optional
 	Storage *StorageSpec `json:"storage,omitempty"`
-	// TargetDatabaseURISecretRef references a Secret (host, user, password, dbname, optional port) for the restore target.
+	// TargetDatabaseURISecretRef references a Secret containing target database connection credentials.
+	// Supported secret keys: host, user, password, dbname, optional port (default: 5432), optional sslmode (default: prefer).
 	TargetDatabaseURISecretRef corev1.LocalObjectReference `json:"targetDatabaseUriSecretRef"`
-	// PITRTimestamp, when set together with BackupName, selects the newest backup taken at or before this time.
+	// TargetSnapshotTime selects the newest logical backup snapshot taken at or before this timestamp.
+	// Snapshot recovery semantics: selects the closest logical dump; does NOT replay WAL archives.
+	// +optional
+	TargetSnapshotTime *metav1.Time `json:"targetSnapshotTime,omitempty"`
+	// PITRTimestamp is deprecated: use targetSnapshotTime instead. Preserved for backwards compatibility.
+	// When targetSnapshotTime is not set, pitrTimestamp serves as a fallback.
 	// +optional
 	PITRTimestamp *metav1.Time `json:"pitrTimestamp,omitempty"`
 }

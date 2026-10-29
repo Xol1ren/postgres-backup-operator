@@ -187,6 +187,10 @@ func (in *PostgresRestoreSpec) DeepCopyInto(out *PostgresRestoreSpec) {
 		**out = **in
 	}
 	out.TargetDatabaseURISecretRef = in.TargetDatabaseURISecretRef
+	if in.TargetSnapshotTime != nil {
+		in, out := &in.TargetSnapshotTime, &out.TargetSnapshotTime
+		*out = (*in).DeepCopy()
+	}
 	if in.PITRTimestamp != nil {
 		in, out := &in.PITRTimestamp, &out.PITRTimestamp
 		*out = (*in).DeepCopy()

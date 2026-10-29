@@ -154,8 +154,12 @@ func (r *PostgresRestoreReconciler) resolveSource(ctx context.Context, rs *v1alp
 			return "", st, "", err
 		}
 		st = bk.Spec.Storage
-		if spec.PITRTimestamp != nil {
-			k, err := r.pickAtOrBefore(ctx, &bk, spec.PITRTimestamp.Time)
+		targetTime := spec.TargetSnapshotTime
+		if targetTime == nil {
+			targetTime = spec.PITRTimestamp
+		}
+		if targetTime != nil {
+			k, err := r.pickAtOrBefore(ctx, &bk, targetTime.Time)
 			if err != nil {
 				return "", st, "", err
 			}

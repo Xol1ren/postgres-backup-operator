@@ -63,8 +63,15 @@ spec:
                 - zstd
                 type: string
               databaseUriSecretRef:
-                description: DatabaseURISecretRef references a Secret with keys host,
-                  user, password, dbname and optional port.
+                description: |-
+                  DatabaseURISecretRef references a Secret containing database connection credentials.
+                  Supported secret keys:
+                  - host (required): database hostname or IP address
+                  - user (required): database username
+                  - password (required): database password
+                  - dbname (required): database name
+                  - port (optional): database port (default: 5432)
+                  - sslmode (optional): PostgreSQL SSL mode (default: prefer; e.g. disable, allow, prefer, require, verify-ca, verify-full)
                 properties:
                   name:
                     default: ""

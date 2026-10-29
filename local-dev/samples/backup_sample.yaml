@@ -5,6 +5,7 @@ metadata:
 stringData:
   host: postgres.default.svc.cluster.local
   port: "5432"
+  sslmode: prefer
   user: postgres
   password: postgres
   dbname: appdb

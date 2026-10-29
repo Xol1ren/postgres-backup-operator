@@ -84,6 +84,7 @@ func buildJob(s jobSpec) *batchv1.Job {
 		secretEnv("PG_USER", s.dbSecret, "user", false),
 		secretEnv("PGPASSWORD", s.dbSecret, "password", false),
 		secretEnv("PG_DBNAME", s.dbSecret, "dbname", false),
+		secretEnv("PGSSLMODE", s.dbSecret, "sslmode", true),
 		secretEnv("S3_ACCESS_KEY", s.storage.CredentialSecretRef.Name, secretKeyAccess, false),
 		secretEnv("S3_SECRET_KEY", s.storage.CredentialSecretRef.Name, secretKeySecret, false),
 		{Name: "S3_ENDPOINT", Value: s.storage.Endpoint},

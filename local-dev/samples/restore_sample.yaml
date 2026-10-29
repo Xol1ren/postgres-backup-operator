@@ -5,6 +5,7 @@ metadata:
 stringData:
   host: postgres-restore.default.svc.cluster.local
   port: "5432"
+  sslmode: prefer
   user: postgres
   password: postgres
   dbname: appdb_restored
@@ -16,8 +17,9 @@ metadata:
 spec:
   # Restore the latest successful backup of this PostgresBackup...
   backupName: appdb-nightly
-  # ...or the newest one taken at or before a point in time (snapshot granularity):
-  # pitrTimestamp: "2026-10-14T12:00:00Z"
+  # ...or the newest one taken at or before a point in time (logical snapshot granularity):
+  # targetSnapshotTime: "2026-10-14T12:00:00Z"
+  # pitrTimestamp: "2026-10-14T12:00:00Z" # Deprecated fallback alias
   targetDatabaseUriSecretRef:
     name: restore-target-credentials
 

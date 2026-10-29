@@ -166,6 +166,21 @@ func TestRestoreExplicitS3Path(t *testing.T) {
 	}
 }
 
+func TestRestoreTargetSnapshotTimeSelectsNewestAtOrBefore(t *testing.T) {
+	target := baseTime.Add(-36 * time.Hour)
+	spec := v1alpha1.PostgresRestoreSpec{BackupName: "nightly", TargetSnapshotTime: &metav1.Time{Time: target}}
+	h := newRestoreHarness(t, restoreObj(spec), succeededBackup())
+	h.store.objs = []storage.Object{
+		{Key: "k/day0.sql.gz", LastModified: baseTime},
+		{Key: "k/day-1.sql.gz", LastModified: baseTime.Add(-24 * time.Hour)},
+		{Key: "k/day-2.sql.gz", LastModified: baseTime.Add(-48 * time.Hour)},
+	}
+	h.reconcile(t)
+	if rs := h.get(t); rs.Status.ResolvedS3Path != "k/day-2.sql.gz" || rs.Status.Phase != v1alpha1.PhaseRunning {
+		t.Errorf("unexpected status: %+v", rs.Status)
+	}
+}
+
 func TestRestorePITRSelectsNewestAtOrBefore(t *testing.T) {
 	target := baseTime.Add(-36 * time.Hour)
 	spec := v1alpha1.PostgresRestoreSpec{BackupName: "nightly", PITRTimestamp: &metav1.Time{Time: target}}
