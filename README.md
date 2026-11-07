@@ -4,7 +4,7 @@
 [![Release](https://github.com/Xol1ren/postgres-backup-operator/actions/workflows/release.yml/badge.svg)](https://github.com/Xol1ren/postgres-backup-operator/actions/workflows/release.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-A production-grade Kubernetes operator that automates **PostgreSQL scheduled backups**, **zero-disk streaming S3/MinIO uploads**, **automated retention pruning**, and **self-service logical restores** via Custom Resource Definitions (`PostgresBackup` and `PostgresRestore`).
+A hardened Kubernetes operator that automates **PostgreSQL scheduled backups**, **zero-disk streaming S3/MinIO uploads**, **automated retention pruning**, and **self-service logical restores** via Custom Resource Definitions (`PostgresBackup` and `PostgresRestore`).
 
 - **Zero-Disk Streaming**: `pg_dump` streams through an on-the-fly compressor (`gzip` or `zstd`) directly into S3/MinIO via a bounded multipart upload buffer pool without ever spooling uncompressed dumps to local disk.
 - **Isolated Ephemeral Runners**: Each backup and restore operation runs in an ephemeral, strictly sandboxed `batch/v1 Job` pod with non-root security contexts.
